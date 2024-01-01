@@ -1,0 +1,71 @@
+/* 树形控件样式 */
+QTreeWidget {
+    color: 'black';
+    background: #00000000;
+    border: 1px solid #e5e5e8;  /* 边框颜色 */
+}
+QTreeWidget:focus {
+    border: 1px solid #9dd1f9; /* 获取焦点时 边框色 */
+}
+QTreeWidget::item{
+    border:1px solid #00000000;
+}
+
+QTreeWidget::item:hover {
+    background: #e2f2fe;
+}
+QTreeWidget::item:selected {
+    color: 'black';
+}
+QTreeWidget::item:selected:active{
+    background: #c0e2fc;
+}
+
+
+
+
+
+QToolButton {
+    padding-bottom: 20px;
+    border: 0px;
+    width: 60px;
+    icon-size: 32px;
+}
+
+QToolButton:hover, QToolButton:checked {
+    background: #E3ECFA;
+}
+
+QToolButton::menu-button {
+    subcontrol-origin: margin;
+    subcontrol-position: bottom center;
+    height: 20px;
+    width: 100%;
+}
+
+QPushButton {
+    border: 0px;
+    width: 60px;
+}
+
+QPushButton:hover {
+    background: #E3ECFA;
+}
+
+QFileButton {
+    background: #C0E0FB;
+}
+
+/* 设置窗口背景色为黑色 */
+QMainWindow {
+    background-color: #FF0000;
+}
+
+QDockWidget {
+    border: 1px solid #FF0000;
+}
+
+QSplitter::handle {
+    background-color: #00000000;
+    border: 1px solid #00000000;
+}
