@@ -51,6 +51,7 @@ class MyMainWindow(QMainWindow):
         self.setWindowTitle("Four Dock Example")
         self.setGeometry(100, 100, 800, 600)
 
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     main_window = MyMainWindow()
