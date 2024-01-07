@@ -1,4 +1,5 @@
-from PyQt5.QtCore import Qt
+import cv2
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
@@ -13,6 +14,9 @@ class MyWindow(QRibbonWindow):
         super(MyWindow, self).__init__()
 
         self._icon_path = r"icon/"
+        self._comsol_icon_path = r"comsol_icons/"
+
+        self._default_icon = f"{self._comsol_icon_path}/animate.png"
 
         self.resize(1000, 600)
 
@@ -53,56 +57,89 @@ class MyWindow(QRibbonWindow):
         # 重新设置文件背景色和鼠标悬停背景色
         fileButton.setMouseTracking(True)
 
-        # 添加标签
-        tab = self.addTab("开始")
-        widget = QWidget(tab)
-        widget.setObjectName("groupWidget")
+        """添加第1个标签页"""
+        group_base_width = 62  # 标准分组宽度
+        tab = self.addTab("标签1")
+        # 创建第1个分组
+        widget = QLabel()
+        widget.setFixedWidth(group_base_width * 2)  # 设置分组的宽度
+        # 添加布局
         gridLayout = QGridLayout(widget)
-        gridLayout.setContentsMargins(3, 3, 3, 3)
-        gridLayout.setSpacing(0)
+        gridLayout.setContentsMargins(3, 3, 3, 3)   # 边距
+        gridLayout.setSpacing(0)                    # 间距
+        # 添加工具按钮
         pasteToolBtn = QToolButton(widget)
         pasteToolBtn.setObjectName("pasteToolBtn")
         pasteToolBtn.setAutoRaise(True)
-        pasteToolBtn.clicked.connect(lambda: print("clicked"))
+        pasteToolBtn.clicked.connect(lambda: print("11"))
         pasteToolBtn.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         pasteToolBtn.setPopupMode(QToolButton.MenuButtonPopup)
         pasteToolBtn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-
-        # 设置菜单
+        # 为工具按钮创建菜单
         menu = QMenu(pasteToolBtn)
-        menu.addAction(QAction("粘贴", menu))
-        menu.addAction(QAction("粘贴为纯文本", menu))
+        menu.addAction(QAction(QIcon(self._default_icon), "工具选项1", menu))
+        menu.addAction(QAction(QIcon(self._default_icon), "工具选项2", menu))
         pasteToolBtn.setMenu(menu)
-        pasteToolBtn.setIcon(QIcon(f"{self._icon_path}/paste.png"))
-        pasteToolBtn.setText('粘贴')
-        pasteToolBtn.setDefaultAction(QAction(QIcon(f"{self._icon_path}/paste.png"), "test"))
+        pasteToolBtn.setIcon(QIcon(self._default_icon))
+        pasteToolBtn.setDefaultAction(QAction(QIcon(self._default_icon), "工具按钮"))
+        # 添加其他按钮
+        bt1 = self._create_button(widget, '按钮1', self._default_icon)
+        bt1.clicked.connect(lambda: print("点击按钮1"))    # 绑定按钮的clicked事件
+        bt2 = self._create_button(widget, '按钮2', self._default_icon)
+        bt3 = self._create_button(widget, '按钮3', self._default_icon)
 
-        gridLayout.addWidget(pasteToolBtn, 0, 0, 3, 1)
-        cutBtn = QPushButton(QIcon(f"{self._icon_path}/cut.png"), "剪切", widget)
-        cutBtn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        gridLayout.addWidget(cutBtn, 0, 1, 1, 1)
-        copyBtn = QPushButton(QIcon(f"{self._icon_path}/copy.png"), "复制", widget)
-        copyBtn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        gridLayout.addWidget(copyBtn, 1, 1, 1, 1)
-        brushBtn = QPushButton(QIcon(f"{self._icon_path}/format.png"), "格式刷", widget)
-        brushBtn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        gridLayout.addWidget(brushBtn, 2, 1, 1, 1)
-        # 添加分组
-        tab.addGroup("剪贴板", widget)
-        # 添加分组
-        widget = QLabel('在这里添加一个控件...')
-        tab.addGroup("文件", widget)
-        widget = QLabel('在这里添加一个控件...')
-        tab.addGroup("文件", widget)
+        # 添加到布局中
+        gridLayout.addWidget(bt1, 0, 1, 1, 1)   # 添加到布局中 位置为0行1列 占1行1列
+        gridLayout.addWidget(bt2, 1, 1, 1, 1)   # 添加到布局中 位置为1行1列 占1行1列
+        gridLayout.addWidget(bt3, 2, 1, 1, 1)   # 添加到布局中 位置为2行1列 占1行1列
+        gridLayout.addWidget(pasteToolBtn, 0, 0, 3, 1)  # 添加到布局中 位置为0行0列 占3行1列
+        # 最后设置分组1名称
+        tab.addGroup("分组1", widget)
 
-        # 添加第二个标签
-        tab = self.addTab('插入')
+        # 创建第2个分组
+        widget = QLabel()
+        widget.setFixedWidth(group_base_width * 2)
+        # 创建布局
+        gridLayout = QGridLayout(widget)
+        gridLayout.setContentsMargins(3, 3, 3, 3)
+        gridLayout.setSpacing(0)
+        # 添加按钮
+        gridLayout.addWidget(self._create_button(widget, '按钮', self._default_icon, lambda: print("点击按钮00")), 0, 0, 1, 1)
+        gridLayout.addWidget(self._create_button(widget, '按钮', self._default_icon, lambda: print("点击按钮10")), 1, 0, 1, 1)
+        gridLayout.addWidget(self._create_button(widget, '按钮', self._default_icon, lambda: print("点击按钮20")), 2, 0, 1, 1)
+        gridLayout.addWidget(self._create_button(widget, '按钮', self._default_icon, lambda: print("点击按钮01")), 0, 1, 1, 1)
+        gridLayout.addWidget(self._create_button(widget, '按钮', self._default_icon, lambda: print("点击按钮11")), 1, 1, 1, 1)
+        gridLayout.addWidget(self._create_button(widget, '按钮', self._default_icon, lambda: print("点击按钮21")), 2, 1, 1, 1)
+        # 设置名称
+        tab.addGroup("分组2", widget)
+
+        # 创建第3个分组
+        widget = QLabel()
+        widget.setFixedWidth(group_base_width)
+        # 创建布局
+        gridLayout = QGridLayout(widget)
+        gridLayout.setContentsMargins(3, 3, 3, 3)
+        gridLayout.setSpacing(0)
+        # 创建一个大按钮
+        button = self._create_big_button(widget, '', self._default_icon, lambda: print("点击按钮"))
+        text = QLabel("大按钮")
+        # 文字水平居中 对齐顶部
+        text.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
+        gridLayout.addWidget(button, 0, 0, 3, 2)
+        gridLayout.addWidget(text, 2, 0, 2, 2)
+        tab.addGroup("分组3", widget)
+
+        """添加第2个标签页"""
+        tab = self.addTab('标签2')
         tab.addGroup('设计', QLabel("在这里添加一个控件..."))
 
-        # 添加第三个标签
-        tab = self.addTab('帮助')
+        """添加第3个标签页"""
+        tab = self.addTab('标签3')
         tab.addGroup(widget=QLabel(" 标签 "), line=True)
         tab.addGroup(widget=QPushButton(" 按钮 "), line=False)
+
+
+
 
         # 设置窗口布局
         self._layout_setting()
@@ -327,6 +364,31 @@ class MyWindow(QRibbonWindow):
         self.tabifyDockWidget(self._dock_msg_view, self._dock_log_view)
         self.tabifyDockWidget(self._dock_msg_view, self._dock_progress_view)
 
+    @staticmethod
+    def _create_button(parent: QWidget, text='button', icon_path='', func=None) -> QPushButton:
+        """创建一个按钮"""
+        bt = QPushButton(QIcon(icon_path), text, parent)
+        # 如果func是一个函数，那么绑定到按钮的clicked事件
+        if callable(func):
+            bt.clicked.connect(func)
+        bt.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        return bt
+
+    @staticmethod
+    def _create_big_button(parent: QWidget, text='button', icon_path='', func=None) -> QPushButton:
+        """创建一个大图标按钮"""
+        bt = QPushButton(text, parent)
+        # 如果func是一个函数，那么绑定到按钮的clicked事件
+        if callable(func):
+            bt.clicked.connect(func)
+        bt.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # 使用opencv读取图标放大后设置为按钮的图标
+        img = cv2.imread(icon_path, cv2.IMREAD_UNCHANGED)
+        img = cv2.resize(img, (32, 32), interpolation=cv2.INTER_CUBIC)
+        img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+        bt.setIcon(QIcon(QPixmap.fromImage(QImage(img.data, img.shape[1], img.shape[0], QImage.Format_RGBA8888))))
+        bt.setIconSize(QSize(32, 32))
+        return bt
 
 if __name__ == '__main__':
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)  # 这里是为了适配高分屏
