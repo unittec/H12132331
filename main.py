@@ -1,60 +1,99 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDockWidget, QTextEdit, QSplitter
 
-class MyMainWindow(QMainWindow):
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QTreeWidget, QTreeWidgetItem, QMenu, QAction, QVBoxLayout, QWidget, QDockWidget, QMainWindow
+
+class TreeViewExample(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # 创建四个停靠窗口
-        dock1 = QDockWidget("Left 1", self)
-        dock2 = QDockWidget("Left 2", self)
-        dock3 = QDockWidget("Right Top", self)
-        dock4 = QDockWidget("Right Bottom", self)
-        dock4_2 = QDockWidget("Right Bottom 2", self)
+        self.initUI()
 
+    def initUI(self):
+        # 创建DockWidget
+        dock_widget = QDockWidget('Tree View with Context Menu', self)
+        self.addDockWidget(Qt.LeftDockWidgetArea, dock_widget)
 
-        # 创建文本编辑框
-        text_edit1 = QTextEdit(dock1)
-        text_edit2 = QTextEdit(dock2)
-        text_edit3 = QTextEdit(dock3)
-        text_edit4 = QTextEdit(dock4)
-        text_edit4_2 = QTextEdit(dock4_2)
+        # 创建树形视图
+        tree_widget = QTreeWidget(dock_widget)
+        tree_widget.setColumnCount(1)
 
-        # 将文本编辑框放入停靠窗口
-        dock1.setWidget(text_edit1)
-        dock2.setWidget(text_edit2)
-        dock3.setWidget(text_edit3)
-        dock4.setWidget(text_edit4)
-        dock4_2.setWidget(text_edit4_2)
+        # 添加根节点
+        root_item = QTreeWidgetItem(tree_widget, ['Root'])
+        root_item.setIcon(0, QIcon('comsol_icons/material_32.png'))
 
-        # 将左1停靠窗口放在左侧，占据1/4宽度
-        self.addDockWidget(1, dock1)
+        # 添加树形数据
+        data = {'Folder': {'Item1': None, 'Item2': None},
+                'File': {'Item3': None, 'Item4': None}}
+        self.addTreeItems(data, root_item)
 
-        # 将左2停靠窗口放在左1停靠窗口的右侧，占据1/4宽度
-        self.addDockWidget(2, dock2)
+        # 启用右键菜单
+        tree_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        tree_widget.customContextMenuRequested.connect(self.showContextMenu)
 
-        # 使用 Splitter 放置左1和左2停靠窗口，占据1/2宽度
-        splitter_left = QSplitter(self)
-        splitter_left.addWidget(dock1)
-        splitter_left.addWidget(dock2)
-        self.setCentralWidget(splitter_left)
+        # 将树形视图设置为DockWidget的widget
+        dock_widget.setWidget(tree_widget)
 
-        # 将右上停靠窗口放在左1和左2停靠窗口的右侧
-        self.addDockWidget(2, dock3)
+        self.setGeometry(300, 300, 500, 400)
+        self.setWindowTitle('Tree View with Context Menu')
+        self.show()
 
-        # 将右下停靠窗口放在左1和左2停靠窗口的右侧
-        self.addDockWidget(2, dock4)
-        # 将4_2放在与右下停靠窗口同一位置，通过标签切换显示
-        self.tabifyDockWidget(dock4, dock4_2)
+    def addTreeItems(self, data, parent_item):
+        for key, value in data.items():
+            item = QTreeWidgetItem(parent_item, [str(key)])
+            item.setIcon(0, QIcon('comsol_icons/material_32.png'))
+            if isinstance(value, dict):
+                # 如果值是字典，递归添加子项
+                self.addTreeItems(value, item)
 
-        # 设置主窗口属性
-        self.setWindowTitle("Four Dock Example")
-        self.setGeometry(100, 100, 800, 600)
+    def showContextMenu(self, pos):
+        # 获取选中的item
+        tree_widget = self.sender()
+        item = tree_widget.itemAt(pos)
+        if item is not None:
+            item_text = item.text(0)
 
+            # 根据item类型创建不同的右键菜单
+            context_menu = self.createContextMenu(item)
+
+            # 显示菜单
+            context_menu.exec_(tree_widget.mapToGlobal(pos))
+
+    def createContextMenu(self, item):
+        item_type = 'Folder'  # 假设所有item的类型都是'Folder'，实际情况应根据你的数据结构进行判断
+
+        # 创建右键菜单
+        context_menu = QMenu(self)
+
+        if item_type == 'Folder':
+            # 添加文件夹菜单项
+            action_open_folder = QAction('Open Folder', self)
+            action_open_folder.triggered.connect(lambda: self.openFolder(item.text(0)))
+            context_menu.addAction(action_open_folder)
+        elif item_type == 'File':
+            # 添加文件菜单项
+            action_open_file = QAction('Open File', self)
+            action_open_file.triggered.connect(lambda: self.openFile(item.text(0)))
+            context_menu.addAction(action_open_file)
+
+        # 添加通用菜单项
+        action_common = QAction(f'Common Action for {item.text(0)}', self)
+        action_common.triggered.connect(lambda: self.commonAction(item.text(0)))
+        context_menu.addAction(action_common)
+
+        return context_menu
+
+    def openFolder(self, folder_name):
+        print(f'Opening folder: {folder_name}')
+
+    def openFile(self, file_name):
+        print(f'Opening file: {file_name}')
+
+    def commonAction(self, item_name):
+        print(f'Performing common action for: {item_name}')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    main_window = MyMainWindow()
-    main_window.show()
+    ex = TreeViewExample()
     sys.exit(app.exec_())
-    # OKde

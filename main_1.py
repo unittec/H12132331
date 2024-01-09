@@ -1,5 +1,5 @@
 import cv2
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, QPoint
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
@@ -44,6 +44,8 @@ class MyWindow(QRibbonWindow):
     def __init_ui(self):
         # 设置标题
         self.setWindowTitle("MyWindow")
+
+        self.ribbonWidget.tabPanel.foldButton.setVisible(False)
 
         # 文件按钮点击事件
         fileButton = self.addFileButton("文件")
@@ -104,12 +106,12 @@ class MyWindow(QRibbonWindow):
         gridLayout.setContentsMargins(3, 3, 3, 3)
         gridLayout.setSpacing(0)
         # 添加按钮
-        gridLayout.addWidget(self._create_button(widget, '按钮', self._default_icon, lambda: print("点击按钮00")), 0, 0, 1, 1)
-        gridLayout.addWidget(self._create_button(widget, '按钮', self._default_icon, lambda: print("点击按钮10")), 1, 0, 1, 1)
-        gridLayout.addWidget(self._create_button(widget, '按钮', self._default_icon, lambda: print("点击按钮20")), 2, 0, 1, 1)
-        gridLayout.addWidget(self._create_button(widget, '按钮', self._default_icon, lambda: print("点击按钮01")), 0, 1, 1, 1)
-        gridLayout.addWidget(self._create_button(widget, '按钮', self._default_icon, lambda: print("点击按钮11")), 1, 1, 1, 1)
-        gridLayout.addWidget(self._create_button(widget, '按钮', self._default_icon, lambda: print("点击按钮21")), 2, 1, 1, 1)
+        gridLayout.addWidget(self._create_button(widget, '按钮01', self._default_icon, lambda: print("点击按钮00")), 0, 0, 1, 1)
+        gridLayout.addWidget(self._create_button(widget, '按钮02', self._default_icon, lambda: print("点击按钮10")), 1, 0, 1, 1)
+        gridLayout.addWidget(self._create_button(widget, '按钮03', self._default_icon, lambda: print("点击按钮20")), 2, 0, 1, 1)
+        gridLayout.addWidget(self._create_button(widget, '按钮04', self._default_icon, lambda: print("点击按钮01")), 0, 1, 1, 1)
+        gridLayout.addWidget(self._create_button(widget, '按钮05', self._default_icon, lambda: print("点击按钮11")), 1, 1, 1, 1)
+        gridLayout.addWidget(self._create_button(widget, '按钮06', self._default_icon, lambda: print("点击按钮21")), 2, 1, 1, 1)
         # 设置名称
         tab.addGroup("分组2", widget)
 
@@ -125,33 +127,61 @@ class MyWindow(QRibbonWindow):
         text = QLabel("大按钮")
         # 文字水平居中 对齐顶部
         text.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
+        # 按钮 文字 添加到布局中
         gridLayout.addWidget(button, 0, 0, 3, 2)
         gridLayout.addWidget(text, 2, 0, 2, 2)
         tab.addGroup("分组3", widget)
 
         """添加第2个标签页"""
         tab = self.addTab('标签2')
-        tab.addGroup('设计', QLabel("在这里添加一个控件..."))
+        # 创建第1个分组
+        widget = QLabel()
+        widget.setFixedWidth(group_base_width)
+        # 创建布局
+        gridLayout = QGridLayout(widget)
+        gridLayout.setContentsMargins(3, 3, 3, 3)
+        gridLayout.setSpacing(0)
+        # 创建一个大按钮
+        button = self._create_big_button(widget, '', self._default_icon, lambda: print("点击按钮"))
+        text = QLabel("大按钮")
+        # 文字水平居中 对齐顶部
+        text.setAlignment(Qt.AlignHCenter | Qt.AlignBottom)
+        # 按钮 文字 添加到布局中
+        gridLayout.addWidget(button, 0, 0, 3, 2)
+        gridLayout.addWidget(text, 2, 0, 2, 2)
+        tab.addGroup('分组1', widget)
 
         """添加第3个标签页"""
         tab = self.addTab('标签3')
-        tab.addGroup(widget=QLabel(" 标签 "), line=True)
-        tab.addGroup(widget=QPushButton(" 按钮 "), line=False)
-
-
-
+        tab.addGroup('分组1', QLabel("在这里添加一个控件..."))
 
         # 设置窗口布局
         self._layout_setting()
-        # 初始化窗口
-        self._init_tree_view(self._dock_tree_view, {"key1": "value1", "key2": "value2", "key3": {"key4": "value4"}})
-        self._init_tree_view(self._dock_tree_view, {"123": {
-            "key4": "value4",
-            "key5": {'key6': 'value6', 'key7': 'value7'},
-        }
+        # 初始化树形视图窗
+        self._init_tree_view(self._dock_tree_view, {
+            "根节点1": {
+                "这是一个excel类型节点": ['excel'],  # 值为若不是字典，那么就是叶子节点，当该节点为叶子节点时，值使用列表表示，列表第一个元素为自定义的类型，例如['excel', ...]
+                "文件": {
+                    '这是一个txt类型节点':
+                        ['txt'],
+                    '这是一个通用类型节点':
+                        ['None'],
+                },
+            },
+            "根节点2": {
+                "这是一个excel类型节点": ['excel'],
+                "文件": {
+                    '这是一个txt类型节点':
+                        ['txt'],
+                    '这是一个通用类型节点':
+                        ['None'],
+                },
+            }
         }
                              )
+        # 初始化设置窗口
         self._init_setting_view(self._dock_setting_view)
+        # 初始化图表窗口
         self._init_chart_view(self._dock_chart_view)
 
     def _init_tree_view(self, dock_widget: QDockWidget, tree_dict: dict):
@@ -160,7 +190,7 @@ class MyWindow(QRibbonWindow):
         frame = QFrame()
         frame.setStyleSheet(self._tree_dock_style_sheet_normal)
 
-        dock_widget.setWidget(frame)
+        dock_widget.setWidget(frame)    # set的时候会自动删除之前的widget 也就是说当修改了tree_dict后，再次调用_init_tree_view时，会重新创建一个新的树形控件
 
         # 使用布局管理器添加文本编辑器和树形控件到 QFrame
         layout = QVBoxLayout(frame)
@@ -202,14 +232,31 @@ class MyWindow(QRibbonWindow):
         # 内部函数，递归添加子项
         def add_tree_items(data, parent_item):
             for key, value in data.items():
+                # 添加节点 并设置节点名称
                 item = QTreeWidgetItem(parent_item, [str(key)])
+                # 设置节点默认图标
                 item.setIcon(0, QIcon('comsol_icons/material_32.png'))
+                # 如果值是字典，递归添加子节点
                 if isinstance(value, dict):
-                    # 如果值是字典，递归添加子项
                     add_tree_items(value, item)
+                # 如果值是列表，那么就是叶子节点，设置item的类型和图标
+                elif isinstance(value, list):
+                    item_type = value[0]
+                    if item_type == 'excel':
+                        item.setIcon(0, QIcon('comsol_icons/mesh/build_mesh_32.png'))
+                    elif item_type == 'txt':
+                        item.setIcon(0, QIcon('comsol_icons/mesh/mesh_mapped_32.png'))
+                    else:
+                        item.setIcon(0, QIcon('comsol_icons/material_32.png'))
+                    # 最后把值设置为item的data 以便后续右键菜单创建时使用 注意这里把整个列表都设置为data 使用时取第一个元素来判断类型
+                    item.setData(0, Qt.UserRole, value)
 
         # 调用内部函数开始递归添加子项
         add_tree_items(tree_dict, tree_widget)
+        # 启用右键菜单
+        tree_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        tree_widget.customContextMenuRequested.connect(self.showContextMenu)
+        # 将树形视图设置为DockWidget的widget
         layout.addWidget(tree_widget)
 
         # 容器获取焦点时 设置frame边框颜色
@@ -217,47 +264,6 @@ class MyWindow(QRibbonWindow):
         # 容器失去焦点时 设置frame边框颜色 同时让文本编辑器也失去焦点
         tree_widget.focusOutEvent = lambda event: frame.setStyleSheet(self._tree_dock_style_sheet_normal)
 
-        return
-
-        # 创建一个容器 widget，并设置为 DockWidget 的主要窗口部件
-        container_widget = QWidget()
-        dock_widget.setWidget(container_widget)
-
-        # 使用布局管理器添加文本编辑器和树形控件到 QFrame
-        layout = QVBoxLayout(container_widget)
-        layout.setContentsMargins(3, 0, 0, 0)
-        # 创建文本
-        title = QLabel()
-        title.setText("Tree View")
-        # 设置字体
-        title.setFont(self._dock_font)
-        # 设置文本颜色
-        title.setStyleSheet("color: #5074ac;")
-        # 设置文本编辑器的固定高度
-        title.setFixedHeight(self._dock_title_fixed_height)
-        layout.addWidget(title)
-
-        # 创建树形控件
-        tree_widget = QTreeWidget(dock_widget)
-        # 设置缩进
-        tree_widget.setIndentation(10)  # 设置缩进 单位是像素
-        tree_widget.setHeaderHidden(True)  # 隐藏表头
-
-        # 内部函数，递归添加子项
-        def add_tree_items(data, parent_item):
-            for key, value in data.items():
-                item = QTreeWidgetItem(parent_item, [str(key)])
-                item.setIcon(0, QIcon('comsol_icons/material_32.png'))
-                if isinstance(value, dict):
-                    # 如果值是字典，递归添加子项
-                    add_tree_items(value, item)
-
-        # 调用内部函数开始递归添加子项
-        add_tree_items(tree_dict, tree_widget)
-
-        # 将树形控件设置为停靠窗口的主窗口
-        # dock_widget.setWidget(tree_widget)
-        layout.addWidget(tree_widget)
 
     def _init_setting_view(self, dock_widget: QDockWidget):
         """初始化设置窗口"""
@@ -363,6 +369,70 @@ class MyWindow(QRibbonWindow):
         # 添加标签页
         self.tabifyDockWidget(self._dock_msg_view, self._dock_log_view)
         self.tabifyDockWidget(self._dock_msg_view, self._dock_progress_view)
+
+    def showContextMenu(self, pos):
+        # 获取选中的item
+        tree_widget = self.sender()
+        item = tree_widget.itemAt(pos)
+        if item is not None:
+            # 获取节点名称
+            item_text = item.text(0)
+
+            # 根据节点类型创建不同的右键菜单
+            context_menu = self.createContextMenu(item, node_type=item.data(0, Qt.UserRole))
+
+            # 显示菜单
+            context_menu.exec_(self._dock_tree_view.mapToGlobal(pos))
+
+    def createContextMenu(self, item, node_type):
+        _type = node_type[0] if isinstance(node_type, list) else None
+
+        # 创建右键菜单
+        context_menu = QMenu(self)
+
+        def_icon = QIcon('comsol_icons/material_32.png')    # 这里全部默认一种图标
+
+        # 添加第一种节点菜单项
+        if _type == 'excel':
+            # 添加第一种节点菜单项
+            action = QAction('excel类型节点 选项1', self)
+            # 绑定选项1的点击事件
+            action.triggered.connect(lambda: print("选中右键菜单.excel类型节点.选项1"))
+            # 设置图标
+            action.setIcon(def_icon)
+            # 添加到右键菜单
+            context_menu.addAction(action)
+            # 完成第一种节点菜单项的添加
+
+
+            action = QAction('excel类型节点 选项2', self)
+            action.triggered.connect(lambda: print("选中右键菜单.excel类型节点.选项2"))
+            action.setIcon(def_icon)
+            context_menu.addAction(action)
+        # 添加第二种节点菜单项
+        elif _type == 'txt':
+            action = QAction('txt类型节点 选项1', self)
+            action.triggered.connect(lambda: print("选中右键菜单.txt类型节点.选项1"))
+            action.setIcon(def_icon)
+            context_menu.addAction(action)
+            action = QAction('txt类型节点 选项2', self)
+            action.triggered.connect(lambda: print("选中右键菜单.txt类型节点.选项2"))
+            action.setIcon(def_icon)
+            context_menu.addAction(action)
+
+        # 添加分隔线
+        context_menu.addSeparator()
+
+        # 最后默认添加通用菜单项
+        action_common1 = QAction(f'通用选项1', self)
+        action_common1.triggered.connect(lambda: print("选中通用菜单.选项1"))
+        action_common1.setIcon(def_icon)
+        context_menu.addAction(action_common1)
+
+        return context_menu
+    def openItem(self, item_text):
+        print(f'Opening item: {item_text}')
+
 
     @staticmethod
     def _create_button(parent: QWidget, text='button', icon_path='', func=None) -> QPushButton:
