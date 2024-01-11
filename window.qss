@@ -22,6 +22,8 @@ QToolButton::menu-button {
     width: 100%;
 }
 
+
+
 QPushButton {
     border: 0px;
     width: 60px;

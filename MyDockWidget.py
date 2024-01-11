@@ -17,3 +17,5 @@ class MyDockWidget(QDockWidget):
         # # 初始化添加一个文本编辑框
         self._text_edit = QTextEdit(self)
         self.setWidget(self._text_edit)
+
+
